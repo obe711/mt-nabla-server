@@ -22,8 +22,6 @@ startServer(config.nablaPort).then((server) => {
 
   process.on('uncaughtException', unexpectedErrorHandler);
   process.on('unhandledRejection', unexpectedErrorHandler);
-  // process.on('SIGINT', () => { console.log("Bye bye!"); process.exit(); });
-  // process.on('SIGHUP', () => { console.log("Bye bye SIGHUP!"); process.exit(); });
   process.on('SIGUSR2', () => {
     logger.info('SOCKET SIGUSR2 received');
     if (server) {
