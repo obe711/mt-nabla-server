@@ -1,5 +1,6 @@
 const dgram = require('node:dgram');
-const logger = require("./config/logger")
+const logger = require("./config/logger");
+const config = require("./config/config");
 
 function createServer() {
   const server = dgram.createSocket('udp4');
@@ -8,9 +9,15 @@ function createServer() {
     logger.info("conneced");
   })
 
-  server.on('message', (msg, rinfo) => {
-    logger.info(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
-  });
+  // server.on('message', (msg, rinfo) => {
+
+  //   const msgString = msg.toString();
+  //   const msgObject = JSON.parse(msgString);
+
+  //   Object.assign(msgObject.nabla, { ip: rinfo.address, port: rinfo.port });
+  //   console.log(msgObject)
+  //   logger.info(`server got: ${msgString} from ${rinfo.address}:${rinfo.port}`);
+  // });
 
   server.on('listening', () => {
     const address = server.address();
@@ -20,19 +27,21 @@ function createServer() {
   return server;
 }
 
-function startServer(port) {
+function startServer(messageHandler) {
   logger.info("starting server");
   const server = createServer()
-  server.bind(port);
+  server.bind(config.nablaPort);
 
   server.on('error', (e) => {
     if (e.code === 'EADDRINUSE') {
       logger.error('Address in use, retrying...');
       setTimeout(() => {
-        startServer(port);
+        startServer();
       }, 1000);
     }
   });
+
+  server.on('message', messageHandler);
 
   return Promise.resolve(server);
 }

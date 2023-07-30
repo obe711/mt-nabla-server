@@ -1,9 +1,23 @@
 const { startServer } = require("./server");
-const config = require("./config/config");
-const logger = require("./config/logger")
+const logger = require("./config/logger");
 
 
-startServer(config.nablaPort).then((server) => {
+const accessMessageHandler = (msg) => {
+  console.log(msg);
+}
+
+const messageHandler = (msg, rinfo) => {
+
+  const msgString = msg.toString();
+  const msgObject = JSON.parse(msgString);
+
+  Object.assign(msgObject.nabla, { ip: rinfo.address, port: rinfo.port });
+  //console.log(msgObject)
+  // logger.info(`server got: ${msgString} from ${rinfo.address}:${rinfo.port}`);
+}
+
+
+startServer(messageHandler).then((server) => {
   const exitHandler = () => {
     if (server) {
       server.close(() => {
